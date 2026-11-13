@@ -76,6 +76,15 @@ glmc_mat4_mulv(CGLM_CONST mat4 m, const vec4 v, vec4 dest) {
 
 CGLM_EXPORT
 void
+glmc_mat4_mulv_batch(CGLM_CONST mat4 m,
+                     const vec4 *src,
+                     vec4       *dest,
+                     size_t      count) {
+  glm_mat4_mulv_batch(m, src, dest, count);
+}
+
+CGLM_EXPORT
+void
 glmc_mat4_mulv3(CGLM_CONST mat4 m, const vec3 v, float last, vec3 dest) {
   glm_mat4_mulv3(m, v, last, dest);
 }

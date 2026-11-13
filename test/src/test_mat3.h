@@ -117,6 +117,38 @@ TEST_IMPL(GLM_PREFIX, mat3_mulv) {
   TEST_SUCCESS
 }
 
+TEST_IMPL(GLM_PREFIX, mat3_mulv_batch) {
+  mat3   mat;
+  vec3   src[64], expected[64], dst[64];
+  size_t i, count;
+  int    j;
+
+  count = 64;
+
+  test_rand_mat3(mat);
+
+  for (i = 0; i < count; i++) {
+    for (j = 0; j < 3; j++) {
+      src[i][j] = frand48();
+    }
+  }
+
+  for (i = 0; i < count; i++) {
+    GLM(mat3_mulv)(mat, src[i], expected[i]);
+  }
+
+  /* out-of-place batch result must be bit-exact with per-vector transform */
+  GLM(mat3_mulv_batch)(mat, src, dst, count);
+  ASSERT(memcmp(expected, dst, sizeof(expected)) == 0)
+
+  /* in-place batch result must be bit-exact too */
+  memcpy(dst, src, sizeof(src));
+  GLM(mat3_mulv_batch)(mat, dst, dst, count);
+  ASSERT(memcmp(expected, dst, sizeof(expected)) == 0)
+
+  TEST_SUCCESS
+}
+
 TEST_IMPL(GLM_PREFIX, mat3_trace) {
   mat3  mat = A_MATRIX;
   float trace;

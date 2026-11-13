@@ -33,6 +33,7 @@ Functions:
 #. :c:func:`glm_mat4_mul`
 #. :c:func:`glm_mat4_mulN`
 #. :c:func:`glm_mat4_mulv`
+#. :c:func:`glm_mat4_mulv_batch`
 #. :c:func:`glm_mat4_mulv3`
 #. :c:func:`glm_mat4_trace`
 #. :c:func:`glm_mat4_trace3`
@@ -160,6 +161,20 @@ Functions documentation
       | *[in]*  **m**     mat4 (left)
       | *[in]*  **v**     vec4 (right, column vector)
       | *[out]* **dest**  vec4 (result, column vector)
+
+.. c:function:: void  glm_mat4_mulv_batch(mat4 m, const vec4 *src, vec4 *dest, size_t count)
+
+    multiply mat4 with an array of vec4 (column vectors) and store results
+    in dest array. The matrix is loaded only once for the whole array.
+    Results are bit-exact identical to calling glm_mat4_mulv() per vector.
+    src and dest may point to the same array for in-place transform.
+    No memory is allocated by this function.
+
+    Parameters:
+      | *[in]*  **m**      mat4 (left)
+      | *[in]*  **src**    source array of count vec4 (may be same as dest)
+      | *[out]* **dest**   destination array of count vec4 (may be same as src)
+      | *[in]*  **count**  number of vectors in src/dest
 
 .. c:function:: void  glm_mat4_mulv3(mat4 m, vec3 v, float last, vec3 dest)
 

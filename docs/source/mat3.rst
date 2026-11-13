@@ -25,6 +25,7 @@ Functions:
 #. :c:func:`glm_mat3_zero`
 #. :c:func:`glm_mat3_mul`
 #. :c:func:`glm_mat3_mulv`
+#. :c:func:`glm_mat3_mulv_batch`
 #. :c:func:`glm_mat3_transpose_to`
 #. :c:func:`glm_mat3_transpose`
 #. :c:func:`glm_mat3_scale`
@@ -525,6 +526,20 @@ Functions documentation
         "row 1", "**792.00** = 1.00 * 33.00 + 4.00 * 55.00 + 7.00 * 77.00"
         "row 2", "**957.00** = 2.00 * 33.00 + 5.00 * 55.00 + 8.00 * 77.00"
         "row 3", "**1122.00** = 3.00 * 33.00 + 6.00 * 55.00 + 9.00 * 77.00"
+
+.. c:function:: void glm_mat3_mulv_batch(mat3 m, const vec3 *src, vec3 *dest, size_t count)
+
+    Multiply mat3 (m) by an array of vec3 and store results in dest array.
+    The matrix is loaded only once for the whole array.
+    Results are bit-exact identical to calling glm_mat3_mulv() per vector.
+    src and dest may point to the same array for in-place transform.
+    No memory is allocated by this function.
+
+    Parameters:
+      | *[in]*  **m**      mat3 (left)
+      | *[in]*  **src**    source array of count vec3 (may be same as dest)
+      | *[out]* **dest**   destination array of count vec3 (may be same as src)
+      | *[in]*  **count**  number of vectors in src/dest
 
 .. c:function:: void glm_mat3_transpose_to(mat3 mat, mat3 dest)
 

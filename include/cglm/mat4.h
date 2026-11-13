@@ -29,6 +29,7 @@
    CGLM_INLINE void  glm_mat4_mul(CGLM_CONST mat4 m1, CGLM_CONST mat4 m2, mat4 dest);
    CGLM_INLINE void  glm_mat4_mulN(mat4 * const __restrict matrices[], uint32_t len, mat4 dest);
    CGLM_INLINE void  glm_mat4_mulv(CGLM_CONST mat4 m, const vec4 v, vec4 dest);
+   CGLM_INLINE void  glm_mat4_mulv_batch(CGLM_CONST mat4 m, const vec4 *src, vec4 *dest, size_t count);
    CGLM_INLINE void  glm_mat4_mulv3(CGLM_CONST mat4 m, const vec3 v, float last, vec3 dest);
    CGLM_INLINE float glm_mat4_trace(CGLM_CONST mat4 m);
    CGLM_INLINE float glm_mat4_trace3(CGLM_CONST mat4 m);
@@ -410,6 +411,58 @@ glm_mat4_mulv(CGLM_CONST mat4 m, const vec4 v, vec4 dest) {
   res[2] = m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2] + m[3][2] * v[3];
   res[3] = m[0][3] * v[0] + m[1][3] * v[1] + m[2][3] * v[2] + m[3][3] * v[3];
   glm_vec4_copy(res, dest);
+#endif
+}
+
+/*!
+ * @brief multiply mat4 with an array of vec4 (column vectors) and store
+ *        results in dest array
+ *
+ * The matrix is loaded only once for the whole array. Results are bit-exact
+ * identical to calling glm_mat4_mulv() for each vector, because each vector
+ * is computed with the exact same operation order.
+ *
+ * src and dest may point to the same array for in-place transform.
+ * No memory is allocated by this function.
+ *
+ * @param[in]  m     mat4 (left)
+ * @param[in]  src   source array of count vec4 (may be same as dest)
+ * @param[out] dest  destination array of count vec4 (may be same as src)
+ * @param[in]  count number of vectors in src/dest
+ */
+CGLM_INLINE
+void
+glm_mat4_mulv_batch(CGLM_CONST mat4 m,
+                    const vec4 *src,
+                    vec4       *dest,
+                    size_t      count) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glm_mat4_mulv_batch_wasm(m, src, dest, count);
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glm_mat4_mulv_batch_sse2(m, src, dest, count);
+#elif defined(CGLM_NEON_FP)
+  glm_mat4_mulv_batch_neon(m, src, dest, count);
+#else
+  /* keep the exact same per-vector expression as glm_mat4_mulv() so that
+     results stay bit-exact; the local copy of m lets the compiler keep the
+     matrix in registers because it cannot alias dest */
+  CGLM_ALIGN_IF(16) float mm[4][4];
+  size_t i;
+
+  glm_mat4_copy(m, mm);
+
+  for (i = 0; i < count; i++) {
+    vec4 res;
+    res[0] = mm[0][0] * src[i][0] + mm[1][0] * src[i][1]
+           + mm[2][0] * src[i][2] + mm[3][0] * src[i][3];
+    res[1] = mm[0][1] * src[i][0] + mm[1][1] * src[i][1]
+           + mm[2][1] * src[i][2] + mm[3][1] * src[i][3];
+    res[2] = mm[0][2] * src[i][0] + mm[1][2] * src[i][1]
+           + mm[2][2] * src[i][2] + mm[3][2] * src[i][3];
+    res[3] = mm[0][3] * src[i][0] + mm[1][3] * src[i][1]
+           + mm[2][3] * src[i][2] + mm[3][3] * src[i][3];
+    glm_vec4_copy(res, dest[i]);
+  }
 #endif
 }
 

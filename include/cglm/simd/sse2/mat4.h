@@ -110,6 +110,38 @@ glm_mat4_mulv_sse2(CGLM_CONST mat4 m, const vec4 v, vec4 dest) {
   glmm_store(dest, x1);
 }
 
+/*
+ * Batch version of glm_mat4_mulv_sse2: matrix columns are loaded once and
+ * the per-vector operation order is kept identical to glm_mat4_mulv_sse2,
+ * so results are bit-exact with per-vector glm_mat4_mulv calls.
+ * src and dest may point to the same array (in-place transform).
+ */
+CGLM_INLINE
+void
+glm_mat4_mulv_batch_sse2(CGLM_CONST mat4 m,
+                         const vec4 *src,
+                         vec4       *dest,
+                         size_t      count) {
+  __m128 m0, m1, m2, m3, x0, x1;
+  size_t i;
+
+  m0 = glmm_load(m[0]);
+  m1 = glmm_load(m[1]);
+  m2 = glmm_load(m[2]);
+  m3 = glmm_load(m[3]);
+
+  for (i = 0; i < count; i++) {
+    x0 = glmm_load(src[i]);
+
+    x1 = _mm_mul_ps(m3, glmm_splat_w(x0));
+    x1 = glmm_fmadd(m2, glmm_splat_z(x0), x1);
+    x1 = glmm_fmadd(m1, glmm_splat_y(x0), x1);
+    x1 = glmm_fmadd(m0, glmm_splat_x(x0), x1);
+
+    glmm_store(dest[i], x1);
+  }
+}
+
 CGLM_INLINE
 float
 glm_mat4_det_sse2(CGLM_CONST mat4 mat) {

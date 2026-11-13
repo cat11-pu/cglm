@@ -195,6 +195,38 @@ TEST_IMPL(GLM_PREFIX, mat4_mulv) {
   TEST_SUCCESS
 }
 
+TEST_IMPL(GLM_PREFIX, mat4_mulv_batch) {
+  mat4   mat;
+  vec4   src[64], expected[64], dst[64];
+  size_t i, count;
+  int    j;
+
+  count = 64;
+
+  test_rand_mat4(mat);
+
+  for (i = 0; i < count; i++) {
+    for (j = 0; j < 4; j++) {
+      src[i][j] = frand48();
+    }
+  }
+
+  for (i = 0; i < count; i++) {
+    GLM(mat4_mulv)(mat, src[i], expected[i]);
+  }
+
+  /* out-of-place batch result must be bit-exact with per-vector transform */
+  GLM(mat4_mulv_batch)(mat, src, dst, count);
+  ASSERT(memcmp(expected, dst, sizeof(expected)) == 0)
+
+  /* in-place batch result must be bit-exact too */
+  memcpy(dst, src, sizeof(src));
+  GLM(mat4_mulv_batch)(mat, dst, dst, count);
+  ASSERT(memcmp(expected, dst, sizeof(expected)) == 0)
+
+  TEST_SUCCESS
+}
+
 TEST_IMPL(GLM_PREFIX, mat4_mulv3) {
   vec4  res;
   mat4  mat = A_MATRIX;

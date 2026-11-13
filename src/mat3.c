@@ -57,6 +57,15 @@ glmc_mat3_mulv(CGLM_CONST mat3 m, const vec3 v, vec3 dest) {
 }
 
 CGLM_EXPORT
+void
+glmc_mat3_mulv_batch(CGLM_CONST mat3 m,
+                     const vec3 *src,
+                     vec3       *dest,
+                     size_t      count) {
+  glm_mat3_mulv_batch(m, src, dest, count);
+}
+
+CGLM_EXPORT
 float
 glmc_mat3_trace(CGLM_CONST mat3 m) {
   return glm_mat3_trace(m);

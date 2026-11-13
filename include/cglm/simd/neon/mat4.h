@@ -102,6 +102,40 @@ glm_mat4_mulv_neon(CGLM_CONST mat4 m, const vec4 v, vec4 dest) {
   vst1q_f32(dest, l0);
 }
 
+/*
+ * Batch version of glm_mat4_mulv_neon: matrix columns are loaded once and
+ * the per-vector operation order is kept identical to glm_mat4_mulv_neon,
+ * so results are bit-exact with per-vector glm_mat4_mulv calls.
+ * src and dest may point to the same array (in-place transform).
+ */
+CGLM_INLINE
+void
+glm_mat4_mulv_batch_neon(CGLM_CONST mat4 m,
+                         const vec4 *src,
+                         vec4       *dest,
+                         size_t      count) {
+  float32x4_t c0, c1, c2, c3, l0;
+  float32x2_t vlo, vhi;
+  size_t      i;
+
+  c0 = vld1q_f32(m[0]);
+  c1 = vld1q_f32(m[1]);
+  c2 = vld1q_f32(m[2]);
+  c3 = vld1q_f32(m[3]);
+
+  for (i = 0; i < count; i++) {
+    vlo = vld1_f32(&src[i][0]);
+    vhi = vld1_f32(&src[i][2]);
+
+    l0 = vmulq_lane_f32(c0, vlo, 0);
+    l0 = vmlaq_lane_f32(l0, c1, vlo, 1);
+    l0 = vmlaq_lane_f32(l0, c2, vhi, 0);
+    l0 = vmlaq_lane_f32(l0, c3, vhi, 1);
+
+    vst1q_f32(dest[i], l0);
+  }
+}
+
 CGLM_INLINE
 float
 glm_mat4_det_neon(CGLM_CONST mat4 mat) {

@@ -22,6 +22,7 @@
    CGLM_INLINE void  glm_mat3_transpose_to(CGLM_CONST mat3 m, mat3 dest);
    CGLM_INLINE void  glm_mat3_transpose(mat3 m);
    CGLM_INLINE void  glm_mat3_mulv(CGLM_CONST mat3 m, const vec3 v, vec3 dest);
+   CGLM_INLINE void  glm_mat3_mulv_batch(CGLM_CONST mat3 m, const vec3 *src, vec3 *dest, size_t count);
    CGLM_INLINE float glm_mat3_trace(CGLM_CONST mat3 m);
    CGLM_INLINE void  glm_mat3_quat(CGLM_CONST mat3 m, versor dest);
    CGLM_INLINE void  glm_mat3_scale(mat3 m, float s);
@@ -241,6 +242,46 @@ glm_mat3_mulv(CGLM_CONST mat3 m, const vec3 v, vec3 dest) {
   res[1] = m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2];
   res[2] = m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2];
   glm_vec3_copy(res, dest);
+}
+
+/*!
+ * @brief multiply mat3 with an array of vec3 (column vectors) and store
+ *        results in dest array
+ *
+ * The matrix is loaded only once for the whole array. Results are bit-exact
+ * identical to calling glm_mat3_mulv() for each vector, because each vector
+ * is computed with the exact same expression (glm_mat3_mulv() is a scalar
+ * function, so this batch version intentionally stays scalar to preserve
+ * the exact same floating-point rounding under any compiler flags).
+ *
+ * src and dest may point to the same array for in-place transform.
+ * No memory is allocated by this function.
+ *
+ * @param[in]  m     mat3 (left)
+ * @param[in]  src   source array of count vec3 (may be same as dest)
+ * @param[out] dest  destination array of count vec3 (may be same as src)
+ * @param[in]  count number of vectors in src/dest
+ */
+CGLM_INLINE
+void
+glm_mat3_mulv_batch(CGLM_CONST mat3 m,
+                    const vec3 *src,
+                    vec3       *dest,
+                    size_t      count) {
+  /* the local copy of m lets the compiler keep the matrix in registers
+     because it cannot alias dest */
+  mat3 mm;
+  size_t i;
+
+  glm_mat3_copy(m, mm);
+
+  for (i = 0; i < count; i++) {
+    vec3 res;
+    res[0] = mm[0][0] * src[i][0] + mm[1][0] * src[i][1] + mm[2][0] * src[i][2];
+    res[1] = mm[0][1] * src[i][0] + mm[1][1] * src[i][1] + mm[2][1] * src[i][2];
+    res[2] = mm[0][2] * src[i][0] + mm[1][2] * src[i][1] + mm[2][2] * src[i][2];
+    glm_vec3_copy(res, dest[i]);
+  }
 }
 
 /*!
