@@ -346,6 +346,11 @@ Functions documentation
     | interpolates between two quaternions
     | using spherical linear interpolation (SLERP)
 
+    Always takes the short arc: when the inputs have a negative dot product
+    the second quaternion is sign-flipped before interpolation, including in
+    the near-parallel LERP fallback. This keeps a keyframe stream continuous
+    across an angle wrap at +-PI instead of snapping back by almost a turn.
+
     Parameters:
       | *[in]*  **from**  from
       | *[in]*  **to**    to

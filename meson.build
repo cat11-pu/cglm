@@ -127,6 +127,7 @@ test_src = files(
     'test/src/test_clamp.c',
     'test/src/test_common.c',
     'test/src/test_euler.c',
+    'test/src/test_rotation_continuity.c',
     'test/src/tests.c',
     'test/src/test_struct.c',
 )

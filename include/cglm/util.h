@@ -28,6 +28,9 @@
    CGLM_INLINE bool  glm_eq(float a, float b);
    CGLM_INLINE float glm_percent(float from, float to, float current);
    CGLM_INLINE float glm_percentc(float from, float to, float current);
+   CGLM_INLINE float glm_angle_normalize(float angle);
+   CGLM_INLINE float glm_angle_lerp(float from, float to, float t);
+   CGLM_INLINE float glm_angle_shortest(float from, float to);
  */
 
 #ifndef cglm_util_h
@@ -370,6 +373,59 @@ glm_swapf(float * __restrict a, float * __restrict b) {
   t  = *a;
   *a = *b;
   *b = t;
+}
+
+/*!
+ * @brief normalize an angle in radians to the half-open range
+ *        (-PI, PI]. The result represents the same rotation as the input
+ *        for any magnitude, including multi-turn angles.
+ *
+ * @param[in] angle angle in radians (any magnitude)
+ */
+CGLM_INLINE
+float
+glm_angle_normalize(float angle) {
+  static const float twoPi = 2.0f * GLM_PIf;
+
+  /* fmod keeps the result in (-2PI, 2PI) even for very large inputs */
+  angle = fmodf(angle, twoPi);
+
+  if (angle > GLM_PIf)
+    angle -= twoPi;
+  else if (angle <= -GLM_PIf)
+    angle += twoPi;
+
+  return angle;
+}
+
+/*!
+ * @brief shortest signed angular distance from one angle to another.
+ *        The returned value is in (-PI, PI] and adding it to `from`
+ *        yields the same orientation as `to` without crossing a branch cut.
+ *
+ * @param[in] from first angle in radians (any magnitude)
+ * @param[in] to   second angle in radians (any magnitude)
+ */
+CGLM_INLINE
+float
+glm_angle_shortest(float from, float to) {
+  return glm_angle_normalize(to - from);
+}
+
+/*!
+ * @brief interpolate angles along the shortest arc, keeping the result
+ *        continuous across the +-PI branch cut. Use this instead of a raw
+ *        linear lerp on normalized angles, which would spin almost a full
+ *        turn when the endpoints lie on opposite branches.
+ *
+ * @param[in] from first angle in radians (any magnitude)
+ * @param[in] to   second angle in radians (any magnitude)
+ * @param[in] t    interpolant, 0 returns `from`, 1 reaches `to`
+ */
+CGLM_INLINE
+float
+glm_angle_lerp(float from, float to, float t) {
+  return from + glm_angle_shortest(from, to) * t;
 }
 
 #endif /* cglm_util_h */

@@ -24,6 +24,9 @@ Functions:
 #. :c:func:`glm_clamp`
 #. :c:func:`glm_lerp`
 #. :c:func:`glm_swapf`
+#. :c:func:`glm_angle_normalize`
+#. :c:func:`glm_angle_shortest`
+#. :c:func:`glm_angle_lerp`
 
 Functions documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,3 +183,46 @@ Functions documentation
     Parameters:
       | *[in]*  **a**      float 1
       | *[in]*  **b**      float 2
+
+.. c:function:: float glm_angle_normalize(float angle)
+
+    normalize an angle in radians to the half-open range (-PI, PI].
+    The result represents the same orientation as the input for any
+    magnitude, including multi-turn angles.
+
+    Parameters:
+      | *[in]*  **angle**  angle in radians
+
+    Returns:
+       equivalent angle in (-PI, PI]
+
+.. c:function:: float glm_angle_shortest(float from, float to)
+
+    shortest signed angular distance from ``from`` to ``to``, in (-PI, PI].
+    Adding the result to ``from`` reaches the orientation of ``to`` without
+    crossing a branch cut.
+
+    Parameters:
+      | *[in]*  **from**  first angle in radians
+      | *[in]*  **to**    second angle in radians
+
+    Returns:
+       shortest signed distance in radians
+
+.. c:function:: float glm_angle_lerp(float from, float to, float t)
+
+    interpolate angles along the shortest arc, keeping the result
+    continuous across the +-PI branch cut. Use this instead of a raw linear
+    lerp on normalized angles, which would spin almost a full turn when the
+    endpoints sit on opposite branches. The vec3 counterparts
+    :c:func:`glm_vec3_angle_normalize`, :c:func:`glm_vec3_angle_shortest`
+    and :c:func:`glm_vec3_angle_lerp` apply the same operations per
+    component.
+
+    Parameters:
+      | *[in]*  **from**  first angle in radians
+      | *[in]*  **to**    second angle in radians
+      | *[in]*  **t**     interpolant, 0 returns ``from``, 1 reaches ``to``
+
+    Returns:
+       interpolated angle in radians

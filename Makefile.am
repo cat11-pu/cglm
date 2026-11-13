@@ -298,6 +298,7 @@ test_tests_SOURCES=\
     test/src/tests.c \
     test/src/test_clamp.c \
     test/src/test_euler.c \
+    test/src/test_rotation_continuity.c \
     test/src/test_bezier.c \
     test/src/test_struct.c
 

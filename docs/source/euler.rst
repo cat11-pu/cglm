@@ -112,6 +112,15 @@ Functions documentation
       | *[in]*  **m**     affine transform
       | *[out]* **dest**  angles vector [x, y, z]
 
+    The extraction uses one continuous formula over the open pitch range and
+    only switches to the degenerate gimbal-lock solution at inputs
+    indistinguishable from an exact pole (machine epsilon), so a smooth
+    animation no longer jumps by ~2PI when it passes through +-PI/2. At an
+    exact lock the roll is still recovered from the remaining matrix terms.
+    Note that euler angles have two equivalent representations near a pole
+    that differ by 2PI; the *orientation* rebuilt from the extracted angles
+    is continuous even when the scalar representation switches branch.
+
 .. c:function:: void  glm_euler(vec3 angles, mat4 dest)
 
     | build rotation matrix from euler angles

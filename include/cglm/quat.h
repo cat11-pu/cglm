@@ -732,22 +732,24 @@ glm_quat_slerp(const versor from, const versor to, float t, versor dest) {
   }
 
   if (cosTheta < 0.0f) {
-    glm_vec4_negate(q1);
+    glm_vec4_negate_to(to, q2);
     cosTheta = -cosTheta;
+  } else {
+    glm_quat_copy(to, q2);
   }
 
   sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
 
-  /* LERP to avoid zero division */
+  /* LERP to avoid zero division; q2 already carries the short-arc sign */
   if (fabsf(sinTheta) < 0.001f) {
-    glm_quat_lerp(from, to, t, dest);
+    glm_quat_lerp(q1, q2, t, dest);
     return;
   }
 
   /* SLERP */
   angle = acosf(cosTheta);
   glm_vec4_scale(q1, sinf((1.0f - t) * angle), q1);
-  glm_vec4_scale(to, sinf(t * angle), q2);
+  glm_vec4_scale(q2, sinf(t * angle), q2);
 
   glm_vec4_add(q1, q2, q1);
   glm_vec4_scale(q1, 1.0f / sinTheta, dest);
@@ -781,19 +783,20 @@ glm_quat_slerp_longest(const versor from, const versor to, float t, versor dest)
     glm_vec4_negate(q1);
     cosTheta = -cosTheta;
   }
+  glm_quat_copy(to, q2);
 
   sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
 
-  /* LERP to avoid zero division */
+  /* LERP to avoid zero division; q1 already carries the long-arc sign */
   if (fabsf(sinTheta) < 0.001f) {
-    glm_quat_lerp(from, to, t, dest);
+    glm_quat_lerp(q1, q2, t, dest);
     return;
   }
 
   /* SLERP */
   angle = acosf(cosTheta);
   glm_vec4_scale(q1, sinf((1.0f - t) * angle), q1);
-  glm_vec4_scale(to, sinf(t * angle), q2);
+  glm_vec4_scale(q2, sinf(t * angle), q2);
 
   glm_vec4_add(q1, q2, q1);
   glm_vec4_scale(q1, 1.0f / sinTheta, dest);

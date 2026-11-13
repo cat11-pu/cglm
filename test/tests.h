@@ -415,6 +415,14 @@ TEST_DECLARE(glmc_euler_zyx_quat_lh)
 
 TEST_DECLARE(euler)
 
+/* rotation continuity across branch cuts and gimbal lock */
+TEST_DECLARE(angle_normalize)
+TEST_DECLARE(angle_shortest_and_lerp)
+TEST_DECLARE(euler_continuous_through_poles)
+TEST_DECLARE(quat_slerp_fallback_sign)
+TEST_DECLARE(euler_quat_roundtrip_grid)
+TEST_DECLARE(continuous_keyframe_slerp)
+
 /* ray */
 TEST_DECLARE(glm_ray_triangle)
 TEST_DECLARE(glm_ray_sphere)
@@ -1641,6 +1649,14 @@ TEST_LIST {
   TEST_ENTRY(glmc_euler_zyx_quat_lh)
 
   TEST_ENTRY(euler)
+
+  /* rotation continuity across branch cuts and gimbal lock */
+  TEST_ENTRY(angle_normalize)
+  TEST_ENTRY(angle_shortest_and_lerp)
+  TEST_ENTRY(euler_continuous_through_poles)
+  TEST_ENTRY(quat_slerp_fallback_sign)
+  TEST_ENTRY(euler_quat_roundtrip_grid)
+  TEST_ENTRY(continuous_keyframe_slerp)
 
   /* ray */
   TEST_ENTRY(glm_ray_triangle)

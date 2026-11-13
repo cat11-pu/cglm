@@ -105,21 +105,39 @@ glm_euler_angles(CGLM_CONST mat4 m, vec3 dest) {
   m01 = m[0][1];  m11 = m[1][1];  m21 = m[2][1];
                                   m22 = m[2][2];
 
-  if (m20 < 1.0f) {
-    if (m20 > -1.0f) {
-      thetaY = asinf(m20);
-      thetaX = atan2f(-m21, m22);
-      thetaZ = atan2f(-m10, m00);
-    } else { /* m20 == -1 */
-      /* Not a unique solution */
-      thetaY = -GLM_PI_2f;
-      thetaX = -atan2f(m01, m11);
-      thetaZ =  0.0f;
-    }
-  } else { /* m20 == +1 */
+  /*
+   * One continuous formula for the whole open range; the special branches
+   * only take over at the exact singular poles.
+   *
+   * The old code keyed the degenerate solution (thetaZ pinned to 0) off
+   * hard m20 == +-1 comparisons, so it flipped on and off as rounding
+   * pushed m20 across the pole during a smooth animation. Each flip jumped
+   * by nearly 2PI, and the degenerate angles do not rebuild the source
+   * matrix unless the lock is exact. Restricting that branch to inputs
+   * indistinguishable from an exact pole at floating-point precision keeps
+   * every non-singular frame on the continuous formula while exact locks
+   * still recover the roll stored in m01/m11.
+   */
+  /*
+   * GLM_FLT_EPSILON defaults to a loose 1e-5 comparison tolerance, which is
+   * ~70x wider than actual single-precision round-off here. Use the machine
+   * epsilon directly: a real rotation step can never land inside this band,
+   * while an exact pole computed through the matrix path still does.
+   */
+  float eps = 8.0f * FLT_EPSILON;
+
+  if (m20 < -1.0f + eps) { /* exact negative pole, pitch = -PI/2 */
+    thetaY = -GLM_PI_2f;
+    thetaX = -atan2f(m01, m11);
+    thetaZ =  0.0f;
+  } else if (m20 > 1.0f - eps) { /* exact positive pole, pitch = +PI/2 */
     thetaY = GLM_PI_2f;
     thetaX = atan2f(m01, m11);
     thetaZ = 0.0f;
+  } else {
+    thetaY = asinf(glm_clamp(m20, -1.0f, 1.0f));
+    thetaX = atan2f(-m21, m22);
+    thetaZ = atan2f(-m10, m00);
   }
 
   dest[0] = thetaX;

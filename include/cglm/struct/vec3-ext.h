@@ -322,4 +322,49 @@ glms_vec3_(sqrt)(vec3s v) {
   return r;
 }
 
+/*!
+ * @brief normalize every component of an euler-angle triplet into (-PI, PI]
+ *
+ * @param[in] v angles in radians (any magnitude)
+ * @returns     normalized angles
+ */
+CGLM_INLINE
+vec3s
+glms_vec3_(angle_normalize)(vec3s v) {
+  vec3s r;
+  glm_vec3_angle_normalize(v.raw, r.raw);
+  return r;
+}
+
+/*!
+ * @brief per-component shortest-arc angular interpolation
+ *
+ * @param[in] from first angle triplet in radians
+ * @param[in] to   second angle triplet in radians
+ * @param[in] t    interpolant
+ * @returns        interpolated angle triplet
+ */
+CGLM_INLINE
+vec3s
+glms_vec3_(angle_lerp)(vec3s from, vec3s to, float t) {
+  vec3s r;
+  glm_vec3_angle_lerp(from.raw, to.raw, t, r.raw);
+  return r;
+}
+
+/*!
+ * @brief per-component shortest signed angular distance in (-PI, PI]
+ *
+ * @param[in] from first angle triplet in radians
+ * @param[in] to   second angle triplet in radians
+ * @returns        shortest signed distance per component
+ */
+CGLM_INLINE
+vec3s
+glms_vec3_(angle_shortest)(vec3s from, vec3s to) {
+  vec3s r;
+  glm_vec3_angle_shortest(from.raw, to.raw, r.raw);
+  return r;
+}
+
 #endif /* cglms_vec3s_ext_h */

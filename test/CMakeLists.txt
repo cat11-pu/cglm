@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8.2)
 set(TESTFILES
   runner.c
   src/test_euler.c
+  src/test_rotation_continuity.c
   src/test_bezier.c
   src/test_struct.c
   src/test_clamp.c

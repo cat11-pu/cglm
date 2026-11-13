@@ -32,6 +32,9 @@
    CGLM_INLINE void  glm_vec3_stepr(const vec3 edge, float x, vec3 dest);
    CGLM_INLINE float glm_vec3_hadd(const vec3 v);
    CGLM_INLINE void  glm_vec3_sqrt(const vec3 v, vec3 dest);
+   CGLM_INLINE void  glm_vec3_angle_normalize(const vec3 angles, vec3 dest);
+   CGLM_INLINE void  glm_vec3_angle_lerp(const vec3 from, const vec3 to, float t, vec3 dest);
+   CGLM_INLINE void  glm_vec3_angle_shortest(const vec3 from, const vec3 to, vec3 dest);
  */
 
 #ifndef cglm_vec3_ext_h
@@ -342,6 +345,53 @@ glm_vec3_sqrt(const vec3 v, vec3 dest) {
   dest[0] = sqrtf(v[0]);
   dest[1] = sqrtf(v[1]);
   dest[2] = sqrtf(v[2]);
+}
+
+/*!
+ * @brief normalize every component of an euler-angle triplet into (-PI, PI]
+ *
+ * @param[in]  angles angles in radians (any magnitude)
+ * @param[out] dest   normalized angles
+ */
+CGLM_INLINE
+void
+glm_vec3_angle_normalize(const vec3 angles, vec3 dest) {
+  dest[0] = glm_angle_normalize(angles[0]);
+  dest[1] = glm_angle_normalize(angles[1]);
+  dest[2] = glm_angle_normalize(angles[2]);
+}
+
+/*!
+ * @brief per-component shortest-arc angular interpolation. Each component
+ *        takes the short way across the +-PI branch cut, so the result stays
+ *        continuous when the keyframes wrap around.
+ *
+ * @param[in]  from first angle triplet in radians
+ * @param[in]  to   second angle triplet in radians
+ * @param[in]  t    interpolant
+ * @param[out] dest interpolated angle triplet
+ */
+CGLM_INLINE
+void
+glm_vec3_angle_lerp(const vec3 from, const vec3 to, float t, vec3 dest) {
+  dest[0] = glm_angle_lerp(from[0], to[0], t);
+  dest[1] = glm_angle_lerp(from[1], to[1], t);
+  dest[2] = glm_angle_lerp(from[2], to[2], t);
+}
+
+/*!
+ * @brief per-component shortest signed angular distance in (-PI, PI]
+ *
+ * @param[in]  from first angle triplet in radians
+ * @param[in]  to   second angle triplet in radians
+ * @param[out] dest shortest signed distance per component
+ */
+CGLM_INLINE
+void
+glm_vec3_angle_shortest(const vec3 from, const vec3 to, vec3 dest) {
+  dest[0] = glm_angle_shortest(from[0], to[0]);
+  dest[1] = glm_angle_shortest(from[1], to[1]);
+  dest[2] = glm_angle_shortest(from[2], to[2]);
 }
 
 #endif /* cglm_vec3_ext_h */
