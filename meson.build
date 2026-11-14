@@ -139,4 +139,12 @@ test_exe = executable('tests',
 
 test('cglm.tests', test_exe)
 
+property_test_exe = executable('property_tests',
+    'test/property/property_tests.c',
+    dependencies : cglm_dep
+)
+
+test('cglm.property_tests', property_test_exe,
+     args : ['100000'])
+
 endif

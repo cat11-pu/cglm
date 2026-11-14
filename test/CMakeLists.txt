@@ -42,6 +42,20 @@ add_test(
     NAME cglm.${TEST_MAIN}
     COMMAND ${TEST_MAIN} ${TEST_RUNNER_PARAMS})
 
+# Randomized property tests (>= 100k random inputs per property).
+set(PROP_MAIN property_tests)
+add_executable(${PROP_MAIN} property/property_tests.c)
+target_link_libraries(${PROP_MAIN} PRIVATE cglm)
+if(NOT MSVC)
+  target_link_libraries(${PROP_MAIN} PRIVATE m)
+endif()
+target_include_directories(${PROP_MAIN} PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}/property
+  )
+add_test(
+    NAME cglm.${PROP_MAIN}
+    COMMAND ${PROP_MAIN} 100000)
+
 add_custom_target(check
   make
   COMMAND ${CMAKE_CTEST_COMMAND} -V
